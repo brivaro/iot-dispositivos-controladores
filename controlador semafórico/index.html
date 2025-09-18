@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controlador de Semáforos</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            gap: 50px;
+        }
+        .container {
+            text-align: center;
+        }
+        .semaforo {
+            background-color: #111;
+            padding: 15px;
+            border-radius: 10px;
+            display: inline-block;
+            border: 3px solid #555;
+        }
+        .luz {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 10px;
+            background-color: #444; /* Color apagado */
+            transition: background-color 0.3s;
+        }
+        .luz.rojo.on { background-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+        .luz.amarillo.on { background-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
+        .luz.verde.on { background-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 id="tituloSemaforo1">Semáforo 1</h1>
+        <div class="semaforo" id="semaforo1">
+            <div class="luz rojo"></div>
+            <div class="luz amarillo"></div>
+            <div class="luz verde"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 id="tituloSemaforo2">Semáforo 2</h1>
+        <div class="semaforo" id="semaforo2">
+            <div class="luz rojo"></div>
+            <div class="luz amarillo"></div>
+            <div class="luz verde"></div>
+        </div>
+    </div>
+
+    <script>
+        // Esta función actualiza la interfaz de un semáforo
+        function actualizarSemaforoUI(idSemaforo, estado) {
+            const semaforoDiv = document.getElementById(idSemaforo);
+            // Apagamos todas las luces primero
+            semaforoDiv.querySelector('.rojo').classList.remove('on');
+            semaforoDiv.querySelector('.amarillo').classList.remove('on');
+            semaforoDiv.querySelector('.verde').classList.remove('on');
+
+            // Encendemos la luz correcta
+            if (estado) {
+                const luzAEncender = semaforoDiv.querySelector(`.${estado.toLowerCase()}`);
+                if (luzAEncender) {
+                    luzAEncender.classList.add('on');
+                }
+            }
+        }
+
+        // Esta función pide el estado al servidor y actualiza la UI
+        async function obtenerYActualizarEstado() {
+            try {
+                const response = await fetch('/status');
+                const estados = await response.json();
+                
+                // Actualizamos los títulos y los semáforos
+                document.getElementById('tituloSemaforo1').textContent = `Semáforo 1 (${estados.id1})`;
+                document.getElementById('tituloSemaforo2').textContent = `Semáforo 2 (${estados.id2})`;
+
+                actualizarSemaforoUI('semaforo1', estados.estado1);
+                actualizarSemaforoUI('semaforo2', estados.estado2);
+
+            } catch (error) {
+                console.error("Error al obtener el estado:", error);
+            }
+        }
+
+        // Pedimos el estado cada 500ms
+        setInterval(obtenerYActualizarEstado, 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Controlador Maestro-Esclavo</title>
+    <style>
+        @keyframes blink-animation { 50% { opacity: 0.2; } }
+        body { font-family: system-ui, sans-serif; background-color: #282c34; color: #abb2bf; margin: 0; padding: 20px; }
+        .main-container { max-width: 1200px; margin: auto; }
+        h1 { text-align: center; border-bottom: 2px solid #61afef; padding-bottom: 10px; }
+        .device-section { margin-top: 30px; }
+        h2 { color: #c678dd; }
+        .devices-grid { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+        .device-card { background-color: #3b4048; border-radius: 8px; padding: 20px; min-width: 200px; text-align: center; border-left: 5px solid #61afef; transition: all 0.3s ease; }
+        .device-card.master { border-left-color: #c678dd; }
+        .device-id { font-weight: bold; font-size: 1.2em; color: #e5c07b; }
+        .device-role { font-style: italic; font-size: 0.9em; color: #98c379; margin-bottom: 15px; }
+        .device-status { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1.5em; }
+        .status-light { width: 25px; height: 25px; border-radius: 50%; background-color: #5c6370; transition: all 0.3s ease; }
+        .device-card.ON .status-light { background-color: #98c379; box-shadow: 0 0 15px #98c379; }
+        .device-card.OFF .status-light { background-color: #5c6370; }
+        .device-card.BLINK .status-light { background-color: #61afef; animation: blink-animation 1s infinite; }
+
+        /* --- NUEVO CSS PARA EL PANEL DE CONTROL --- */
+        .control-panel {
+            background-color: #21252b;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .control-panel button {
+            background-color: #61afef;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s;
+        }
+        .control-panel button:hover { background-color: #528baf; }
+        .control-panel button.on-btn { background-color: #98c379; }
+        .control-panel button.on-btn:hover { background-color: #7a9c60; }
+        .control-panel button.off-btn { background-color: #5c6370; }
+        .control-panel button.off-btn:hover { background-color: #4a505a; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>Dashboard Maestro-Esclavo (Función f1)</h1>
+        <div class="device-section">
+            <h2 id="master-title">Maestro</h2>
+            <div class="devices-grid" id="master-container">
+                <!-- El Maestro y el Panel de Control se generarán aquí -->
+            </div>
+        </div>
+        <div class="device-section">
+            <h2 id="slaves-title">Esclavos</h2>
+            <div class="devices-grid" id="slaves-container"></div>
+        </div>
+    </div>
+
+    <script>
+        const masterContainer = document.getElementById('master-container');
+        const slavesContainer = document.getElementById('slaves-container');
+        let masterId = null;
+
+        // --- NUEVA FUNCIÓN PARA ENVIAR COMANDOS ---
+        async function sendMasterCommand(action) {
+            if (!masterId) {
+                console.error("ID del maestro no conocido.");
+                return;
+            }
+            console.log(`Enviando comando '${action}' al maestro...`);
+            try {
+                const response = await fetch('/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accion: action })
+                });
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result.status);
+            } catch (error) {
+                console.error("Error al enviar comando:", error);
+            }
+        }
+
+        function createDeviceUI(device) {
+            const card = document.createElement('div');
+            card.className = `device-card ${device.role} ${device.state}`;
+            card.id = `device-${device.id}`;
+            card.innerHTML = `
+                <div class="device-id">${device.id}</div>
+                <div class="device-role">${device.role}</div>
+                <div class="device-status">
+                    <div class="status-light"></div>
+                    <span>${device.state}</span>
+                </div>
+            `;
+
+            if (device.role === 'master') {
+                masterContainer.innerHTML = ''; // Limpiamos por si acaso
+                const controlPanel = document.createElement('div');
+                controlPanel.className = 'control-panel';
+                controlPanel.innerHTML = `
+                    <button class="on-btn" onclick="sendMasterCommand('encender')">Set ON</button>
+                    <button class="off-btn" onclick="sendMasterCommand('apagar')">Set OFF</button>
+                    <button onclick="sendMasterCommand('parpadear')">Set BLINK</button>
+                `;
+                masterContainer.appendChild(card);
+                masterContainer.appendChild(controlPanel);
+            } else {
+                slavesContainer.appendChild(card);
+            }
+        }
+
+        async function fetchAndUpdate() {
+            try {
+                const response = await fetch('/status');
+                const devices = await response.json();
+                
+                slavesContainer.innerHTML = ''; // Limpiar solo esclavos
+                let slaveCount = 0;
+
+                devices.forEach(device => {
+                    if (device.role === 'master') {
+                        masterId = device.id; // Guardamos el ID del maestro
+                    }
+                    // Re-creamos la UI para cada dispositivo para actualizar su estado
+                    createDeviceUI(device);
+                    if (device.role === 'slave') slaveCount++;
+                });
+                document.getElementById('slaves-title').textContent = `Esclavos (${slaveCount})`;
+            } catch (error) {
+                console.error("Error al obtener el estado:", error);
+            }
+        }
+        setInterval(fetchAndUpdate, 1000);
+        fetchAndUpdate();
+    </script>
+</body>
+</html>
