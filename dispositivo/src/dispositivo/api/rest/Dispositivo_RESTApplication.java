@@ -16,7 +16,8 @@ public class Dispositivo_RESTApplication extends Application {
 	protected IDispositivo dispositivo = null;
 	private String loggerId = null;
 	
-	public Dispositivo_RESTApplication(IDispositivo dispositivo) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+    public Dispositivo_RESTApplication(IDispositivo dispositivo) {
 		this.dispositivo = dispositivo;
 		this.loggerId = dispositivo.getId() + "-apiREST";
 		
