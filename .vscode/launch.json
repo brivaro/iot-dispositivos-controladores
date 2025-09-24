@@ -2,8 +2,15 @@
     // Utilitzeu IntelliSense per aprendre sobre els atributs possibles.
     // Passeu el cursor per sobre per veure les descripcions dels atributs existents.
     // Per a més informació, visiteu: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
+    "version": "0.3.0",
     "configurations": [
+        {
+            "type": "java",
+            "name": "ControladorMaestroEsclavo",
+            "request": "launch",
+            "mainClass": "dispositivo.ControladorMaestroEsclavo",
+            "projectName": "iot-dispositivos-controladores_c3207df3"
+        },
         {
             "type": "java",
             "name": "Dispositivo",
@@ -13,7 +20,8 @@
                 "ttmi050",
                 "ttmi050.iot.upv.es",
                 8182,
-                "tcp://mqttserver:1883"]
+                "tcp://tambori.dsic.upv.es:10083"
+            ]
         },
         {
             "type": "java",
@@ -21,10 +29,11 @@
             "request": "launch",
             "mainClass": "dispositivo.pi4j2.iniciador.DispositivoIniciadorPi4Jv2",
             "args": [
-                "ttmi050",
-                "ttmi050.iot.upv.es",
-                8182,
-                "tcp://mqttserver:1883"]
+                "ttmi051",
+                "ttmi051.iot.upv.es",
+                8183,
+                "tcp://tambori.dsic.upv.es:10083"
+            ]
         }
     ]
 }
