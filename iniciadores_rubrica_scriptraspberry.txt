@@ -1,0 +1,54 @@
+COMANDOS -------------------------------------------------------------------------------------------------------------------------
+
+Iniciar el Dispositivo ttmi050
+java -cp bin:lib/* dispositivo.iniciador.DispositivoIniciador ttmi050 ttmi050.iot.upv.es 8182 tcp://tambori.dsic.upv.es:10083
+
+Iniciar el Controlador Semafórico
+java -cp bin:lib/* dispositivo.ControladorSemaforico <broker-mqtt> <id-dispositivo-1> <id-dispositivo-2>
+
+Ejemplo: 
+    java -cp bin:lib/* dispositivo.ControladorSemaforico tcp://tambori.dsic.upv.es:10083 ttmi050 ttmi051
+
+Iniciar el Controlador Maestro Esclavo
+java -cp bin:lib/* dispositivo.ControladorMaestroEsclavo <broker> <maestro> <esclavo1> [esclavo2] ...
+
+Ejemplo:
+     java -cp bin:lib/* dispositivo.ControladorMaestroEsclavo tcp://tambori.dsic.upv.es:10083 ttmi050 ttmi051 ttmi052
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+Entrega Trabajo Académico 2025 – Bloque II
+ 
+Confirmamos que hemos completado todos los ejercicios solicitados en la rúbrica con nivel Excelente:
+ 
+Ejercicio 1: Añadida función f3 en modo parpadeo y configurada antes de iniciar el dispositivo.
+ 
+Ejercicio 2 y 3: Mensajes de respuesta en JSON correctamente codificados en el API REST, en la operación HTTP correcta y usando la infraestructura proporcionada.
+ 
+Ejercicio 4 y 5: Funcionalidad de habilitar/deshabilitar implementada tanto en el dispositivo como a través del API REST, aplicando también a sus funciones.
+ 
+Ejercicio 6: Respuesta proporcionada correctamente.
+ 
+Ejercicio 7 y 8: API MQTT adaptada para recibir comandos y para habilitar/deshabilitar el dispositivo, en formato JSON y con el conector proporcionado.
+ 
+Ejercicio 9: Notificaciones de cambio de estado implementadas a través de conector MQTT en cada función.
+ 
+Ejercicio 10: Proceso independiente desarrollado para controlar dos dispositivos IoT (semáforos) mediante sus API REST/MQTT.
+ 
+Ejercicio 11: Proceso independiente parametrizable desarrollado con un dispositivo maestro y <n> esclavos, monitorizando y controlando colectivamente a través de las APIs.
+ 
+Despliegue en Raspberry Pi: Solución completa desplegada en Pi4J con f1, f2 y f3 funcionando sobre el semáforo incorporado.
+ 
+Raspberry Pi – Forma: Entregada carpeta dispositivo-seminario2 con .jar ejecutable, script funcional y documentación para prueba directa.
+ 
+Todas las funcionalidades solicitadas han sido implementadas, integradas y verificadas correctamente. Se ha implementado servidores web para ver gráficamente el controlador-semafórico y el maestro-esclavo.
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+En la raspberry -> ./start.sh
+
+#!/bin/bash
+
+sudo java -jar dispositivo-pi.jar $(hostname) $(hostname).iot.upv.es 8182 tcp://tambori.dsic.upv.es:10083
+
+#sudo java -jar dispositivo-pi.jar $(hostname) $(hostname).iot.upv.es 8182 tcp://ttmi008.iot.upv.es:1883
